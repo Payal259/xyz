@@ -1,0 +1,90 @@
+name: 🚀 Deploy → AEP Staging
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'templates/**'
+      - 'template_registry.json'
+
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    name: Push Templates to AEP Staging
+    runs-on: windows-latest
+    environment: aep-staging
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate all SQL templates
+        run: python scripts/validate_sql.py --all
+
+      - name: Push all templates to AEP Staging
+        env:
+          AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:         ${{ secrets.AEP_ORG_ID }}
+          AEP_SANDBOX_NAME:   ${{ secrets.AEP_STAGING_SANDBOX }}
+          AEP_API_BASE:       https://platform.adobe.io
+        run: python scripts/aep_sync.py push --all
+
+      - name: Verify sync
+        env:
+          AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:         ${{ secrets.AEP_ORG_ID }}
+          AEP_SANDBOX_NAME:   ${{ secrets.AEP_STAGING_SANDBOX }}
+          AEP_API_BASE:       https://platform.adobe.io
+        run: python scripts/aep_sync.py diff
+
+      - name: Commit registry updates
+        shell: pwsh
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git add template_registry.json
+          git add templates/**/*.sql
+          $changes = git status --porcelain
+          if ($changes) {
+            git commit -m "chore: update template_registry.json after staging deploy [skip ci]"
+            git push origin staging
+            Write-Host "Registry committed and pushed."
+          } else {
+            Write-Host "No registry changes to commit."
+          }
+
+      - name: Write job summary
+        if: always()
+        shell: pwsh
+        run: |
+          $status = if ("${{ job.status }}" -eq "success") { "✅ Succeeded" } else { "❌ Failed" }
+          $summary = @"
+          ## 🚀 AEP Staging Deploy — $status
+
+          | Detail | Value |
+          |---|---|
+          | Branch | ``staging`` |
+          | Sandbox | ``${{ secrets.AEP_STAGING_SANDBOX }}`` |
+          | Triggered by | ${{ github.actor }} |
+          | Commit | ``${{ github.sha }}`` |
+          "@
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8 -Append
