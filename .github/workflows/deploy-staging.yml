@@ -30,15 +30,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        shell: pwsh
+        run: |
+          if (Test-Path requirements.txt) {
+            pip install -r requirements.txt
+          } elseif (Test-Path scripts/requirements.txt) {
+            pip install -r scripts/requirements.txt
+          } else {
+            Write-Host "No requirements.txt found - skipping"
+          }
 
       - name: Validate all SQL templates
+        shell: pwsh
         run: python scripts/validate_sql.py --all
 
       - name: Push all templates to AEP Staging
+        shell: pwsh
         env:
           AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
           AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
@@ -48,6 +57,7 @@ jobs:
         run: python scripts/aep_sync.py push --all
 
       - name: Verify sync
+        shell: pwsh
         env:
           AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
           AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
@@ -62,7 +72,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
           git add template_registry.json
-          git add templates/**/*.sql
           $changes = git status --porcelain
           if ($changes) {
             git commit -m "chore: update template_registry.json after staging deploy [skip ci]"
@@ -79,12 +88,10 @@ jobs:
           $status = if ("${{ job.status }}" -eq "success") { "✅ Succeeded" } else { "❌ Failed" }
           $summary = @"
           ## 🚀 AEP Staging Deploy — $status
-
           | Detail | Value |
           |---|---|
-          | Branch | ``staging`` |
-          | Sandbox | ``${{ secrets.AEP_STAGING_SANDBOX }}`` |
+          | Branch | staging |
           | Triggered by | ${{ github.actor }} |
-          | Commit | ``${{ github.sha }}`` |
+          | Commit | ${{ github.sha }} |
           "@
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8 -Append
