@@ -1,4 +1,5 @@
 -- direct commit test
+ -- auto trigger test #2
 SELECT
     timestamp,
     eventType,
@@ -6,7 +7,7 @@ SELECT
 FROM
     experience_events
 LIMIT 10;
- -- auto trigger test #2
+
 -- ============================================================
 -- name: Test Template Check
 -- description: >
