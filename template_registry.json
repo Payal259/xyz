@@ -1,0 +1,28 @@
+{
+  "templates": {
+    "new_user_registration": {
+      "id": "ed0eaf62-0cfc-4b32-a937-17819e3202c0",
+      "file": "templates\\acquisition\\new_user_registration.sql",
+      "sandbox": "aep-training",
+      "action": "updated"
+    },
+    "daily_active_users": {
+      "id": "01c3c892-5030-4e4d-b876-62a0dddfb8b0",
+      "file": "templates\\analytics\\daily_active_users.sql",
+      "sandbox": "aep-training",
+      "action": "updated"
+    },
+    "churn_analysis": {
+      "id": "e2e71a65-fea6-40b6-b9db-b4f87fd4eaf0",
+      "file": "templates\\retention\\churn_analysis.sql",
+      "sandbox": "aep-training",
+      "action": "updated"
+    },
+    "identity_resolution_cte": {
+      "id": "154b603b-79b9-496f-bfcd-7ab2b1bff5a4",
+      "file": "templates\\shared\\identity_resolution_cte.sql",
+      "sandbox": "aep-training",
+      "action": "updated"
+    }
+  }
+}
