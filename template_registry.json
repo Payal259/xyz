@@ -23,6 +23,12 @@
       "file": "templates\\shared\\identity_resolution_cte.sql",
       "sandbox": "aep-training",
       "action": "updated"
+    },
+    "test_template_check": {
+      "id": "1737564a-38f1-4f04-a8fd-0fc0836e9bc6",
+      "file": "templates\\analytics\\test_template_check.sql",
+      "sandbox": "aep-training",
+      "action": "created"
     }
   }
 }
