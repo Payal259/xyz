@@ -1,3 +1,4 @@
+-- direct commit test
 SELECT
     timestamp,
     eventType,
