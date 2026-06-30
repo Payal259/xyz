@@ -60,7 +60,9 @@ def cmd_push(args):
         print("No .sql files found under templates/")
         sys.exit(1)
 
-    print(f"\nPushing {len(sql_files)} template(s) to AEP sandbox: {sandbox}\n")
+    print("")
+    print("Pushing " + str(len(sql_files)) + " template(s) to AEP sandbox: " + str(sandbox))
+    print("")
 
     for sql_file in sql_files:
         name = sql_file.stem
@@ -83,13 +85,15 @@ def cmd_push(args):
                 "sandbox": sandbox,
                 "action":  action,
             }
-            print(f"  ✔  {name} ({action})")
+            print("  OK  " + name + " (" + action + ")")
 
         except Exception as e:
-            print(f"  ✘  {name} — ERROR: {e}")
+            print("  FAIL  " + name + " - ERROR: " + str(e))
 
     save_registry(registry)
-    print(f"\nRegistry updated: {REGISTRY}\n")
+    print("")
+    print("Registry updated: " + str(REGISTRY))
+    print("")
 
 
 def cmd_pull(args):
@@ -97,12 +101,14 @@ def cmd_pull(args):
     registry  = load_registry()
     templates = list_aep_templates(sandbox)
 
-    print(f"\nPulling {len(templates)} template(s) from AEP sandbox: {sandbox}\n")
+    print("")
+    print("Pulling " + str(len(templates)) + " template(s) from AEP sandbox: " + str(sandbox))
+    print("")
 
     for t in templates:
         name = t.get("name", "unknown")
         sql  = t.get("sql", "")
-        out  = TEMPLATES_DIR / "shared" / f"{name}.sql"
+        out  = TEMPLATES_DIR / "shared" / (name + ".sql")
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(sql, encoding="utf-8")
         registry["templates"][name] = {
@@ -110,30 +116,34 @@ def cmd_pull(args):
             "file":    str(out.relative_to(REPO_ROOT)),
             "sandbox": sandbox,
         }
-        print(f"  ✔  {name}")
+        print("  OK  " + name)
 
     save_registry(registry)
-    print(f"\nRegistry updated: {REGISTRY}\n")
+    print("")
+    print("Registry updated: " + str(REGISTRY))
+    print("")
 
 
 def cmd_diff(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
     sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
-    local     = {f.stem for f in sql_files}
+    local     = set(f.stem for f in sql_files)
 
-    only_local = local - existing.keys()
-    only_aep   = existing.keys() - local
-    both       = local & existing.keys()
+    only_local = local - set(existing.keys())
+    only_aep   = set(existing.keys()) - local
+    both       = local & set(existing.keys())
 
-    print(f"\nDiff — sandbox: {sandbox}\n")
+    print("")
+    print("Diff - sandbox: " + str(sandbox))
+    print("")
     for name in sorted(both):
-        print(f"  ✔  {name}  (in both GitHub and AEP)")
+        print("  MATCH    " + name + "  (in both GitHub and AEP)")
     for name in sorted(only_local):
-        print(f"  +  {name}  (only in GitHub — will be created on push)")
+        print("  NEW      " + name + "  (only in GitHub - will be created on push)")
     for name in sorted(only_aep):
-        print(f"  -  {name}  (only in AEP — not in GitHub)")
-    print()
+        print("  MISSING  " + name + "  (only in AEP - not in GitHub)")
+    print("")
 
 
 def main():
