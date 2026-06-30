@@ -75,7 +75,7 @@ jobs:
           $changes = git status --porcelain
           if ($changes) {
             git commit -m "chore: update template_registry.json after staging deploy [skip ci]"
-            git push origin staging
+            git push origin HEAD
             Write-Host "Registry committed and pushed."
           } else {
             Write-Host "No registry changes to commit."
