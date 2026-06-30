@@ -5,7 +5,7 @@ SELECT
 FROM
     experience_events
 LIMIT 10;
-
+ -- auto trigger test #2
 -- ============================================================
 -- name: Test Template Check
 -- description: >
