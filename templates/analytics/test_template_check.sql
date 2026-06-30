@@ -1,21 +1,9 @@
--- direct commit test
- -- auto trigger test #2
 SELECT
     timestamp,
     eventType,
     _id
 FROM
     experience_events
+WHERE
+    _acp_year = YEAR(CURRENT_DATE)
 LIMIT 10;
-
--- ============================================================
--- name: Test Template Check
--- description: >
---   Simple test query against the out-of-the-box experience_events
---   dataset to confirm new template creation works end-to-end.
--- category: analytics
--- aep_template_id:
--- owner: payal
--- last_updated: 2026-06-30
--- tags: test, validation
--- ============================================================
