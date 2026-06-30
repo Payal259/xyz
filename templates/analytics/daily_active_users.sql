@@ -10,7 +10,7 @@
 -- last_updated: 2024-06-01
 -- tags: dau, engagement, daily, trend
 -- ============================================================
-
+-- final test
 SELECT
     DATE(timestamp)                             AS event_date,
     device.type                                 AS device_type,
