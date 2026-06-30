@@ -2,27 +2,183 @@
   "templates": {
     "new_user_registration": {
       "id": "ed0eaf62-0cfc-4b32-a937-17819e3202c0",
-      "file": "templates\\acquisition\\new_user_registration.sql",
-      "sandbox": "aep-training",
-      "action": "updated"
+      "file": "templates\\shared\\new_user_registration.sql",
+      "sandbox": "aep-training"
     },
     "daily_active_users": {
       "id": "01c3c892-5030-4e4d-b876-62a0dddfb8b0",
-      "file": "templates\\analytics\\daily_active_users.sql",
-      "sandbox": "aep-training",
-      "action": "updated"
+      "file": "templates\\shared\\daily_active_users.sql",
+      "sandbox": "aep-training"
     },
     "churn_analysis": {
       "id": "e2e71a65-fea6-40b6-b9db-b4f87fd4eaf0",
-      "file": "templates\\retention\\churn_analysis.sql",
-      "sandbox": "aep-training",
-      "action": "updated"
+      "file": "templates\\shared\\churn_analysis.sql",
+      "sandbox": "aep-training"
     },
     "identity_resolution_cte": {
       "id": "154b603b-79b9-496f-bfcd-7ab2b1bff5a4",
       "file": "templates\\shared\\identity_resolution_cte.sql",
-      "sandbox": "aep-training",
-      "action": "updated"
+      "sandbox": "aep-training"
+    },
+    "test_template_check": {
+      "id": "1737564a-38f1-4f04-a8fd-0fc0836e9bc6",
+      "file": "templates\\shared\\test_template_check.sql",
+      "sandbox": "aep-training"
+    },
+    "VYNX": {
+      "id": "da788a11-a393-4090-9809-9ea2872c6902",
+      "file": "templates\\shared\\VYNX.sql",
+      "sandbox": "aep-training"
+    },
+    "Derived Dataset Query": {
+      "id": "ed915e80-5953-4af2-b0b3-cc89cb2ac237",
+      "file": "templates\\shared\\Derived Dataset Query.sql",
+      "sandbox": "aep-training"
+    },
+    "KK_DailyRun_RankedBirthyear_dataset": {
+      "id": "034f465c-56b6-4c35-ad66-dc57ff7180ce",
+      "file": "templates\\shared\\KK_DailyRun_RankedBirthyear_dataset.sql",
+      "sandbox": "aep-training"
+    },
+    "Test Scheduled Query": {
+      "id": "bf2bc5b4-fbf7-46e7-b746-69ed394700f4",
+      "file": "templates\\shared\\Test Scheduled Query.sql",
+      "sandbox": "aep-training"
+    },
+    "Test Daily Customer Accounts Query": {
+      "id": "cde68378-457a-43dd-aa88-d4b24233acec",
+      "file": "templates\\shared\\Test Daily Customer Accounts Query.sql",
+      "sandbox": "aep-training"
+    },
+    "Daily Customer Accounts Details For Tenant ID": {
+      "id": "4b5ce9a2-fe55-4827-a495-af30a258bc37",
+      "file": "templates\\shared\\Daily Customer Accounts Details For Tenant ID.sql",
+      "sandbox": "aep-training"
+    },
+    "Daily Customer Accounts Details": {
+      "id": "fedc5cc8-d174-4165-90f7-d572b6b496f4",
+      "file": "templates\\shared\\Daily Customer Accounts Details.sql",
+      "sandbox": "aep-training"
+    },
+    "Customer Accounts Details": {
+      "id": "80340ce1-8ae4-4aff-9612-81a1cefe334c",
+      "file": "templates\\shared\\Customer Accounts Details.sql",
+      "sandbox": "aep-training"
+    },
+    "Customer Accounts Query": {
+      "id": "3fa5f215-148c-445b-89b5-4b430e017c93",
+      "file": "templates\\shared\\Customer Accounts Query.sql",
+      "sandbox": "aep-training"
+    },
+    "Daily Customer Accounts Query": {
+      "id": "1fedf11e-8950-48d5-a35d-8ecc6a716d74",
+      "file": "templates\\shared\\Daily Customer Accounts Query.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_date_Insert": {
+      "id": "fe8ee114-3e23-447e-aef8-d204ebd36197",
+      "file": "templates\\shared\\Template_dim_date_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_br_namespace_destinations_Insert": {
+      "id": "d18c8e7e-3dfd-4f33-bb0a-c44b9fd06baf",
+      "file": "templates\\shared\\Template_dim_br_namespace_destinations_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_br_segment_destinations_Insert": {
+      "id": "d15819d2-4e83-42e4-8191-c429ef694b5b",
+      "file": "templates\\shared\\Template_dim_br_segment_destinations_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_destination_Insert": {
+      "id": "ddf43dfa-ae57-494c-af9f-16b6ea86bbae",
+      "file": "templates\\shared\\Template_dim_destination_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_adwh_fact_profile_by_segment_ai_model_Insert": {
+      "id": "aec80235-82e3-481a-a787-62ff82a73d72",
+      "file": "templates\\shared\\Template_adwh_fact_profile_by_segment_ai_model_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_adwh_fact_profile_ai_model_Insert": {
+      "id": "937e66ed-f23b-426a-8565-a00895e834c4",
+      "file": "templates\\shared\\Template_adwh_fact_profile_ai_model_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_overlap_of_segments_by_namespace_Insert": {
+      "id": "750c6fbc-1105-41df-8a85-740cd7685934",
+      "file": "templates\\shared\\Template_fact_profile_overlap_of_segments_by_namespace_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_overlap_of_segments_Insert": {
+      "id": "96a9266c-fa35-456a-a5ba-1b5fc85861ff",
+      "file": "templates\\shared\\Template_fact_profile_overlap_of_segments_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_overlap_by_namespace_and_segment_Insert": {
+      "id": "2c376347-6ab7-4c7a-b125-248a8819117f",
+      "file": "templates\\shared\\Template_fact_profile_overlap_by_namespace_and_segment_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_overlap_of_namespace_by_segment_Insert": {
+      "id": "c3853a2f-9fc9-4c06-9370-cb1f8c87e093",
+      "file": "templates\\shared\\Template_fact_profile_overlap_of_namespace_by_segment_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_overlap_of_namespace_Insert": {
+      "id": "e965d4c5-64c4-4c5d-9d1a-4b8adc6de866",
+      "file": "templates\\shared\\Template_fact_profile_overlap_of_namespace_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_by_segment_and_namespace_Insert": {
+      "id": "394036fa-9306-4822-9026-7dda25766bd4",
+      "file": "templates\\shared\\Template_fact_profile_by_segment_and_namespace_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_by_segment_Insert": {
+      "id": "3d612044-c814-4211-bb1c-d9d43038595a",
+      "file": "templates\\shared\\Template_fact_profile_by_segment_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_by_namespace_Insert": {
+      "id": "a37a4d58-c7ff-40cc-bc62-bd807e834bd2",
+      "file": "templates\\shared\\Template_fact_profile_by_namespace_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_fact_profile_Insert": {
+      "id": "bf815b2c-97ef-419a-b567-035f669706ac",
+      "file": "templates\\shared\\Template_fact_profile_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_ai_model_Insert": {
+      "id": "af279c0f-5af1-4078-beab-01e03b749977",
+      "file": "templates\\shared\\Template_dim_ai_model_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_overlap_segments_Insert": {
+      "id": "dde6215c-35d6-4359-a05d-70fea9b0b341",
+      "file": "templates\\shared\\Template_dim_overlap_segments_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_overlap_namespaces_Insert": {
+      "id": "e118a302-f4f9-444b-b387-d14836b498b0",
+      "file": "templates\\shared\\Template_dim_overlap_namespaces_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_namespace_Insert": {
+      "id": "689fcafd-ca31-4ed4-a38f-c1f1b23f3e78",
+      "file": "templates\\shared\\Template_dim_namespace_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_dim_segment_Insert": {
+      "id": "3cf41f32-4874-485b-9221-c99138dc7805",
+      "file": "templates\\shared\\Template_dim_segment_Insert.sql",
+      "sandbox": "aep-training"
+    },
+    "Template_lkup_process_delta_log_for_Insert": {
+      "id": "8c5e98d7-0f15-4206-b14c-be7ea31a911a",
+      "file": "templates\\shared\\Template_lkup_process_delta_log_for_Insert.sql",
+      "sandbox": "aep-training"
     }
   }
 }
