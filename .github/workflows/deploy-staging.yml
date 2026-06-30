@@ -1,4 +1,4 @@
-name: 🚀 Deploy → AEP Staging
+name: Deploy to AEP Staging
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
     paths:
       - 'templates/**'
       - 'template_registry.json'
-
   workflow_dispatch:
 
 jobs:
@@ -49,28 +48,28 @@ jobs:
       - name: Push all templates to AEP Staging
         shell: pwsh
         env:
-          AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
-          AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
-          AEP_ORG_ID:         ${{ secrets.AEP_ORG_ID }}
-          AEP_SANDBOX_NAME:   ${{ secrets.AEP_STAGING_SANDBOX }}
-          AEP_API_BASE:       https://platform.adobe.io
+          AEP_CLIENT_ID: ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET: ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
+          AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
+          AEP_API_BASE: https://platform.adobe.io
         run: python scripts/aep_sync.py push --all
 
       - name: Verify sync
         shell: pwsh
         env:
-          AEP_CLIENT_ID:      ${{ secrets.AEP_CLIENT_ID }}
-          AEP_CLIENT_SECRET:  ${{ secrets.AEP_CLIENT_SECRET }}
-          AEP_ORG_ID:         ${{ secrets.AEP_ORG_ID }}
-          AEP_SANDBOX_NAME:   ${{ secrets.AEP_STAGING_SANDBOX }}
-          AEP_API_BASE:       https://platform.adobe.io
+          AEP_CLIENT_ID: ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET: ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
+          AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
+          AEP_API_BASE: https://platform.adobe.io
         run: python scripts/aep_sync.py diff
 
       - name: Commit registry updates
         shell: pwsh
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git add template_registry.json
           $changes = git status --porcelain
           if ($changes) {
@@ -85,13 +84,8 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          $status = if ("${{ job.status }}" -eq "success") { "✅ Succeeded" } else { "❌ Failed" }
-          $summary = @"
-          ## 🚀 AEP Staging Deploy — $status
-          | Detail | Value |
-          |---|---|
-          | Branch | staging |
-          | Triggered by | ${{ github.actor }} |
-          | Commit | ${{ github.sha }} |
-          "@
-          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8 -Append
+          $status = if ("${{ job.status }}" -eq "success") { "Succeeded" } else { "Failed" }
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## AEP Staging Deploy - $status"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Branch: staging"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Triggered by: ${{ github.actor }}"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Commit: ${{ github.sha }}"
