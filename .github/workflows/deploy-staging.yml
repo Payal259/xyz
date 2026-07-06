@@ -53,7 +53,7 @@ jobs:
           AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
           AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
           AEP_API_BASE: https://platform.adobe.io
-        run: python scripts/aep_sync.py push --all
+        run: python scripts/aep_sync.py push
 
       - name: Verify sync
         shell: pwsh
