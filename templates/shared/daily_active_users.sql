@@ -1,16 +1,4 @@
--- ============================================================
--- updated via pull-edit-push test
--- name: Daily Active Users (DAU)
--- description: >
---   Counts unique ECIDs with at least one experience event
---   per day for the trailing 30-day window. Breaks down by
---   device type and channel for trend analysis.
--- category: analytics
--- aep_template_id:
--- owner: analytics-team
--- last_updated: 2024-06-01
--- tags: dau, engagement, daily, trend
--- ============================================================
+
 -- final test
 SELECT
     DATE(timestamp)                             AS event_date,
