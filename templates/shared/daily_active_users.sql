@@ -1,5 +1,5 @@
 
--- final test
+-- final test xyz
 SELECT
     DATE(timestamp)                             AS event_date,
     device.type                                 AS device_type,
