@@ -52,42 +52,39 @@ def update_aep_template(template_id, name, sql, sandbox=None):
 
 
 def cmd_push(args):
+    import hashlib
+
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     registry  = load_registry()
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-
-    if args.all:
-        sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
-    else:
-        try:
-            result = subprocess.run(
-                ["git", "diff", "--name-only", "HEAD~1", "HEAD"],
-                capture_output=True, text=True, cwd=REPO_ROOT
-            )
-            changed = result.stdout.strip().splitlines()
-            sql_files = [
-                REPO_ROOT / f for f in changed
-                if f.startswith("templates/") and f.endswith(".sql")
-            ]
-            if not sql_files:
-                print("No template files changed in this commit. Nothing to push.")
-                return
-        except Exception as e:
-            print("Could not detect changed files, falling back to all: " + str(e))
-            sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+    sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
 
     if not sql_files:
         print("No .sql files found under templates/")
         sys.exit(1)
 
     print("")
-    print("Pushing " + str(len(sql_files)) + " template(s) to AEP sandbox: " + str(sandbox))
+    print("Checking " + str(len(sql_files)) + " template(s) for changes...")
     print("")
 
+    pushed  = 0
+    skipped = 0
+
     for sql_file in sql_files:
-        name = sql_file.stem
-        sql  = sql_file.read_text(encoding="utf-8")
-        rel  = str(sql_file.relative_to(REPO_ROOT))
+        name     = sql_file.stem
+        sql      = sql_file.read_text(encoding="utf-8")
+        rel      = str(sql_file.relative_to(REPO_ROOT))
+        new_hash = hashlib.md5(sql.strip().encode()).hexdigest()
+
+        reg_entry  = registry.get("templates", {}).get(name, {})
+        last_hash  = reg_entry.get("content_hash", "")
+        aep_sql    = existing.get(name, {}).get("sql", "")
+        aep_hash   = hashlib.md5(aep_sql.strip().encode()).hexdigest() if aep_sql else ""
+
+        if new_hash == last_hash and new_hash == aep_hash:
+            print("  SKIP  " + name + " (no changes)")
+            skipped += 1
+            continue
 
         try:
             if name in existing:
@@ -99,19 +96,22 @@ def cmd_push(args):
                 tid    = result.get("id", "unknown")
                 action = "created"
 
-            registry["templates"][name] = {
-                "id":      tid,
-                "file":    rel,
-                "sandbox": sandbox,
-                "action":  action,
+            registry.setdefault("templates", {})[name] = {
+                "id":           tid,
+                "file":         rel,
+                "sandbox":      sandbox,
+                "action":       action,
+                "content_hash": new_hash,
             }
             print("  OK  " + name + " (" + action + ")")
+            pushed += 1
 
         except Exception as e:
             print("  FAIL  " + name + " - ERROR: " + str(e))
 
     save_registry(registry)
     print("")
+    print("Done — pushed: " + str(pushed) + ", skipped: " + str(skipped))
     print("Registry updated: " + str(REGISTRY))
     print("")
 
