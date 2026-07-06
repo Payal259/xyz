@@ -3,6 +3,7 @@ aep_sync.py  -  Sync AEP Query Templates between GitHub and Adobe AEP
 """
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -52,8 +53,6 @@ def update_aep_template(template_id, name, sql, sandbox=None):
 
 
 def cmd_push(args):
-    import hashlib
-
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     registry  = load_registry()
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
@@ -76,12 +75,10 @@ def cmd_push(args):
         rel      = str(sql_file.relative_to(REPO_ROOT))
         new_hash = hashlib.md5(sql.strip().encode()).hexdigest()
 
-        reg_entry  = registry.get("templates", {}).get(name, {})
-        last_hash  = reg_entry.get("content_hash", "")
-        aep_sql    = existing.get(name, {}).get("sql", "")
-        aep_hash   = hashlib.md5(aep_sql.strip().encode()).hexdigest() if aep_sql else ""
+        reg_entry = registry.get("templates", {}).get(name, {})
+        last_hash = reg_entry.get("content_hash", "")
 
-        if new_hash == last_hash and new_hash == aep_hash:
+        if last_hash and new_hash == last_hash:
             print("  SKIP  " + name + " (no changes)")
             skipped += 1
             continue
@@ -111,9 +108,10 @@ def cmd_push(args):
 
     save_registry(registry)
     print("")
-    print("Done — pushed: " + str(pushed) + ", skipped: " + str(skipped))
+    print("Done - pushed: " + str(pushed) + ", skipped: " + str(skipped))
     print("Registry updated: " + str(REGISTRY))
     print("")
+
 
 def cmd_pull(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
