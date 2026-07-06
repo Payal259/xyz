@@ -5,6 +5,7 @@ aep_sync.py  -  Sync AEP Query Templates between GitHub and Adobe AEP
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,7 +55,26 @@ def cmd_push(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     registry  = load_registry()
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-    sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+
+    if args.all:
+        sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+    else:
+        try:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "HEAD~1", "HEAD"],
+                capture_output=True, text=True, cwd=REPO_ROOT
+            )
+            changed = result.stdout.strip().splitlines()
+            sql_files = [
+                REPO_ROOT / f for f in changed
+                if f.startswith("templates/") and f.endswith(".sql")
+            ]
+            if not sql_files:
+                print("No template files changed in this commit. Nothing to push.")
+                return
+        except Exception as e:
+            print("Could not detect changed files, falling back to all: " + str(e))
+            sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
 
     if not sql_files:
         print("No .sql files found under templates/")
@@ -94,7 +114,6 @@ def cmd_push(args):
     print("")
     print("Registry updated: " + str(REGISTRY))
     print("")
-
 
 def cmd_pull(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
