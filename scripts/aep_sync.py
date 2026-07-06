@@ -5,6 +5,7 @@ aep_sync.py  -  Sync AEP Query Templates between GitHub and Adobe AEP
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -51,6 +52,8 @@ def update_aep_template(template_id, name, sql, sandbox=None):
 
 
 def cmd_push(args):
+    import hashlib
+
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     registry  = load_registry()
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
@@ -61,13 +64,27 @@ def cmd_push(args):
         sys.exit(1)
 
     print("")
-    print("Pushing " + str(len(sql_files)) + " template(s) to AEP sandbox: " + str(sandbox))
+    print("Checking " + str(len(sql_files)) + " template(s) for changes...")
     print("")
 
+    pushed  = 0
+    skipped = 0
+
     for sql_file in sql_files:
-        name = sql_file.stem
-        sql  = sql_file.read_text(encoding="utf-8")
-        rel  = str(sql_file.relative_to(REPO_ROOT))
+        name     = sql_file.stem
+        sql      = sql_file.read_text(encoding="utf-8")
+        rel      = str(sql_file.relative_to(REPO_ROOT))
+        new_hash = hashlib.md5(sql.strip().encode()).hexdigest()
+
+        reg_entry  = registry.get("templates", {}).get(name, {})
+        last_hash  = reg_entry.get("content_hash", "")
+        aep_sql    = existing.get(name, {}).get("sql", "")
+        aep_hash   = hashlib.md5(aep_sql.strip().encode()).hexdigest() if aep_sql else ""
+
+        if new_hash == last_hash and new_hash == aep_hash:
+            print("  SKIP  " + name + " (no changes)")
+            skipped += 1
+            continue
 
         try:
             if name in existing:
@@ -79,22 +96,24 @@ def cmd_push(args):
                 tid    = result.get("id", "unknown")
                 action = "created"
 
-            registry["templates"][name] = {
-                "id":      tid,
-                "file":    rel,
-                "sandbox": sandbox,
-                "action":  action,
+            registry.setdefault("templates", {})[name] = {
+                "id":           tid,
+                "file":         rel,
+                "sandbox":      sandbox,
+                "action":       action,
+                "content_hash": new_hash,
             }
             print("  OK  " + name + " (" + action + ")")
+            pushed += 1
 
         except Exception as e:
             print("  FAIL  " + name + " - ERROR: " + str(e))
 
     save_registry(registry)
     print("")
+    print("Done — pushed: " + str(pushed) + ", skipped: " + str(skipped))
     print("Registry updated: " + str(REGISTRY))
     print("")
-
 
 def cmd_pull(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
