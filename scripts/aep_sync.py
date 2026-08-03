@@ -15,7 +15,7 @@ from aep_auth import get_headers
 
 REPO_ROOT     = Path(__file__).parent.parent
 REGISTRY      = REPO_ROOT / "template_registry.json"
-TEMPLATES_DIR = REPO_ROOT / "templates"
+TEMPLATES_DIR = REPO_ROOT 
 API_BASE      = os.getenv("AEP_API_BASE", "https://platform.adobe.io")
 
 
@@ -144,7 +144,10 @@ def cmd_pull(args):
 def cmd_diff(args):
     sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-    sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+    sql_files = sorted(
+    f for f in TEMPLATES_DIR.glob("**/*.sql")
+    if not any(part.startswith(".") for part in f.parts)
+     )
     local     = set(f.stem for f in sql_files)
 
     only_local = local - set(existing.keys())
