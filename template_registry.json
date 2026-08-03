@@ -251,6 +251,20 @@
       "sandbox": "aep-training",
       "action": "updated",
       "content_hash": "d643eccd3893258802df50922e3b25f8"
+    },
+    "test_payal": {
+      "id": "92e32588-ddef-47d4-b8d9-02b36875e5cd",
+      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\test_payal.sql",
+      "sandbox": "aep-training",
+      "action": "created",
+      "content_hash": "7b8b354ed4343a51099f8bacff6014c2"
+    },
+    "placeholder": {
+      "id": "b10a9a07-edea-4780-806b-9083ef5efd42",
+      "file": "insurance\\data_distiller\\ins-dev\\io_templates\\placeholder.sql",
+      "sandbox": "aep-training",
+      "action": "created",
+      "content_hash": "7b8b354ed4343a51099f8bacff6014c2"
     }
   }
 }
