@@ -212,23 +212,25 @@ def cmd_diff(args):
     local     = set(f.stem for f in sql_files)
 
     for secret_name, sandbox in sandboxes.items():
-        existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-
-        only_local = local - set(existing.keys())
-        only_aep   = set(existing.keys()) - local
-        both       = local & set(existing.keys())
-
         print("")
         print("Diff - sandbox: " + sandbox)
         print("")
-        for name in sorted(both):
-            print("  MATCH    " + name + "  (in both GitHub and AEP)")
-        for name in sorted(only_local):
-            print("  NEW      " + name + "  (only in GitHub)")
-        for name in sorted(only_aep):
-            print("  MISSING  " + name + "  (only in AEP)")
-        print("")
+        try:
+            existing   = {t["name"]: t for t in list_aep_templates(sandbox)}
+            only_local = local - set(existing.keys())
+            only_aep   = set(existing.keys()) - local
+            both       = local & set(existing.keys())
 
+            for name in sorted(both):
+                print("  MATCH    " + name)
+            for name in sorted(only_local):
+                print("  NEW      " + name)
+            for name in sorted(only_aep):
+                print("  MISSING  " + name)
+        except Exception as e:
+            print("  WARN  Cannot connect to sandbox: " + str(e))
+            print("  Skipping diff for this sandbox")
+        print("")
 
 def main():
     parser = argparse.ArgumentParser(description="Sync AEP Query Templates")
