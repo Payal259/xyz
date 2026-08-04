@@ -2,6 +2,15 @@ name: Pull Templates from AEP Staging
 
 on:
   workflow_dispatch:
+    inputs:
+      sandbox_target:
+        description: 'Which sandbox to pull from?'
+        required: true
+        default: 'BETA_FEATURES'
+        type: choice
+        options:
+          - BETA_FEATURES
+          - AEP_STAGING_SANDBOX
 
 jobs:
   pull-from-aep:
@@ -28,20 +37,18 @@ jobs:
         run: |
           if (Test-Path requirements.txt) {
             pip install -r requirements.txt
-          } elseif (Test-Path scripts/requirements.txt) {
-            pip install -r scripts/requirements.txt
-          } else {
-            Write-Host "No requirements.txt found - skipping"
           }
 
-      - name: Pull all templates from AEP
+      - name: Pull templates from selected sandbox
         shell: pwsh
         env:
-          AEP_CLIENT_ID: ${{ secrets.AEP_CLIENT_ID }}
-          AEP_CLIENT_SECRET: ${{ secrets.AEP_CLIENT_SECRET }}
-          AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
-          AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
-          AEP_API_BASE: https://platform.adobe.io
+          AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:   ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
+          AEP_API_BASE:        https://platform.adobe.io
+          AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
+          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
+          PULL_TARGET:         ${{ github.event.inputs.sandbox_target }}
         run: python scripts/aep_sync.py pull
 
       - name: Commit pulled templates
@@ -53,9 +60,9 @@ jobs:
           git add template_registry.json
           $changes = git status --porcelain
           if ($changes) {
-            git commit -m "chore: pull latest templates from AEP staging"
+            git commit -m "chore: pull templates from ${{ github.event.inputs.sandbox_target }} [skip ci]"
             git push origin HEAD
             Write-Host "Pulled templates committed and pushed."
           } else {
-            Write-Host "No new templates to pull - everything already in sync."
+            Write-Host "No new templates to pull."
           }
