@@ -1,12 +1,6 @@
 name: Deploy to AEP Staging
 
 on:
-  push:
-    branches:
-      - staging
-    paths:
-      - 'templates/**'
-      - 'template_registry.json'
   workflow_dispatch:
 
 jobs:
@@ -45,24 +39,26 @@ jobs:
         shell: pwsh
         run: python scripts/validate_sql.py --all
 
-      - name: Push all templates to AEP Staging
+      - name: Push templates to AEP
         shell: pwsh
         env:
-          AEP_CLIENT_ID: ${{ secrets.AEP_CLIENT_ID }}
-          AEP_CLIENT_SECRET: ${{ secrets.AEP_CLIENT_SECRET }}
-          AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
-          AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
-          AEP_API_BASE: https://platform.adobe.io
+          AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:   ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
+          AEP_API_BASE:        https://platform.adobe.io
+          AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
+          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
         run: python scripts/aep_sync.py push
 
       - name: Verify sync
         shell: pwsh
         env:
-          AEP_CLIENT_ID: ${{ secrets.AEP_CLIENT_ID }}
-          AEP_CLIENT_SECRET: ${{ secrets.AEP_CLIENT_SECRET }}
-          AEP_ORG_ID: ${{ secrets.AEP_ORG_ID }}
-          AEP_SANDBOX_NAME: ${{ secrets.AEP_STAGING_SANDBOX }}
-          AEP_API_BASE: https://platform.adobe.io
+          AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:   ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
+          AEP_API_BASE:        https://platform.adobe.io
+          AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
+          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
         run: python scripts/aep_sync.py diff
 
       - name: Commit registry updates
@@ -79,13 +75,3 @@ jobs:
           } else {
             Write-Host "No registry changes to commit."
           }
-
-      - name: Write job summary
-        if: always()
-        shell: pwsh
-        run: |
-          $status = if ("${{ job.status }}" -eq "success") { "Succeeded" } else { "Failed" }
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## AEP Staging Deploy - $status"
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Branch: staging"
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Triggered by: ${{ github.actor }}"
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "Commit: ${{ github.sha }}"
