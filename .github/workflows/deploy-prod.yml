@@ -1,9 +1,9 @@
-name: Deploy to AEP Staging (BETA_FEATURES)
+name: Deploy to AEP Production
 
 on:
   push:
     branches:
-      - staging
+      - main
     paths:
       - 'insurance/**'
       - 'centerwell/**'
@@ -12,10 +12,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-staging:
-    name: Push Templates to BETA_FEATURES
+  deploy-prod:
+    name: Push Templates to AEP Production
     runs-on: windows-latest
-    environment: aep-staging-approval
+    environment: aep-production
 
     permissions:
       contents: write
@@ -47,7 +47,7 @@ jobs:
         shell: pwsh
         run: python scripts/validate_sql.py --all
 
-      - name: Push templates to BETA_FEATURES sandbox
+      - name: Push templates to Production sandbox
         shell: pwsh
         env:
           AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
@@ -77,7 +77,7 @@ jobs:
           git add template_registry.json
           $changes = git status --porcelain
           if ($changes) {
-            git commit -m "chore: update template_registry.json after staging deploy [skip ci]"
+            git commit -m "chore: update template_registry.json after prod deploy [skip ci]"
             git push origin HEAD
             Write-Host "Registry committed and pushed."
           } else {
