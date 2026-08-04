@@ -10,6 +10,7 @@
       "id": "01c3c892-5030-4e4d-b876-62a0dddfb8b0",
       "file": "templates\\shared\\daily_active_users.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "e0b6d8fd1ac9273cca87f48663008c0a"
     },
     "churn_analysis": {
@@ -28,6 +29,7 @@
       "id": "1737564a-38f1-4f04-a8fd-0fc0836e9bc6",
       "file": "templates\\shared\\test_template_check.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "f6ff487be7df506c15c83fefad65f81f"
     },
     "VYNX": {
