@@ -156,62 +156,46 @@ def cmd_push(args):
 
 
 def cmd_pull(args):
-    """
-    Pulls templates from all configured sandboxes into GitHub.
-    Saves content_hash so push won't re-push unchanged templates.
-    """
-    sandboxes = {}
+    target   = os.getenv("PULL_TARGET", "BETA_FEATURES")
+    sandbox  = os.getenv(target, "")
 
-    beta = os.getenv("BETA_FEATURES", "")
-    staging = os.getenv("AEP_STAGING_SANDBOX", "")
-
-    if beta:
-        sandboxes["BETA_FEATURES"] = beta
-    if staging:
-        sandboxes["AEP_STAGING_SANDBOX"] = staging
-
-    if not sandboxes:
-        print("No sandbox secrets configured. Nothing to pull.")
+    if not sandbox:
+        print("No sandbox configured for: " + target)
         sys.exit(1)
 
-    registry = load_registry()
+    templates = list_aep_templates(sandbox)
+    registry  = load_registry()
 
-    for secret_name, sandbox in sandboxes.items():
-        templates = list_aep_templates(sandbox)
+    print("")
+    print("Pulling " + str(len(templates)) + " template(s) from: " + sandbox)
+    print("")
 
-        print("")
-        print("Pulling " + str(len(templates)) + " template(s) from: " + sandbox)
-        print("")
+    for t in templates:
+        name = t.get("name", "unknown")
+        sql  = t.get("sql", "")
 
-        for t in templates:
-            name = t.get("name", "unknown")
-            sql  = t.get("sql", "")
+        if not sql.strip():
+            print("  SKIP  " + name + " (empty SQL)")
+            continue
 
-            if not sql.strip():
-                print("  SKIP  " + name + " (empty SQL)")
-                continue
+        out = REPO_ROOT / "templates" / "shared" / (name + ".sql")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(sql, encoding="utf-8")
 
-            # save pulled templates into shared folder
-            out = REPO_ROOT / "templates" / "shared" / (name + ".sql")
-            out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(sql, encoding="utf-8")
+        content_hash = hashlib.md5(sql.strip().encode()).hexdigest()
 
-            # save hash so push won't re-push unchanged templates
-            content_hash = hashlib.md5(sql.strip().encode()).hexdigest()
-
-            registry["templates"][name] = {
-                "id":           t.get("id"),
-                "file":         str(out.relative_to(REPO_ROOT)),
-                "sandbox":      sandbox,
-                "content_hash": content_hash,
-            }
-            print("  OK  " + name)
+        registry["templates"][name] = {
+            "id":           t.get("id"),
+            "file":         str(out.relative_to(REPO_ROOT)),
+            "sandbox":      sandbox,
+            "content_hash": content_hash,
+        }
+        print("  OK  " + name)
 
     save_registry(registry)
     print("")
     print("Registry updated: " + str(REGISTRY))
     print("")
-
 
 def cmd_diff(args):
     sandboxes = {}
