@@ -1,0 +1,85 @@
+name: Deploy to AEP Staging (BETA_FEATURES)
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'insurance/**'
+      - 'centerwell/**'
+      - 'brand_agnostic/**'
+      - 'templates/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    name: Push Templates to BETA_FEATURES
+    runs-on: windows-latest
+    environment: aep-staging-approval
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          if (Test-Path requirements.txt) {
+            pip install -r requirements.txt
+          } elseif (Test-Path scripts/requirements.txt) {
+            pip install -r scripts/requirements.txt
+          } else {
+            Write-Host "No requirements.txt found - skipping"
+          }
+
+      - name: Validate all SQL templates
+        shell: pwsh
+        run: python scripts/validate_sql.py --all
+
+      - name: Push templates to BETA_FEATURES sandbox
+        shell: pwsh
+        env:
+          AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:   ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
+          AEP_API_BASE:        https://platform.adobe.io
+          AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
+          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
+        run: python scripts/aep_sync.py push
+
+      - name: Verify sync
+        shell: pwsh
+        env:
+          AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
+          AEP_CLIENT_SECRET:   ${{ secrets.AEP_CLIENT_SECRET }}
+          AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
+          AEP_API_BASE:        https://platform.adobe.io
+          AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
+          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
+        run: python scripts/aep_sync.py diff
+
+      - name: Commit registry updates
+        shell: pwsh
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add template_registry.json
+          $changes = git status --porcelain
+          if ($changes) {
+            git commit -m "chore: update template_registry.json after staging deploy [skip ci]"
+            git push origin HEAD
+            Write-Host "Registry committed and pushed."
+          } else {
+            Write-Host "No registry changes to commit."
+          }
