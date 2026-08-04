@@ -43,6 +43,12 @@ jobs:
             Write-Host "No requirements.txt found - skipping"
           }
 
+      - name: Pull latest registry
+        shell: pwsh
+        run: |
+          git pull origin Staging
+          Write-Host "Pulled latest registry from staging"
+
       - name: Validate all SQL templates
         shell: pwsh
         run: python scripts/validate_sql.py --all
