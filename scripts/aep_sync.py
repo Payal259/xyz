@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import json
 import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -15,7 +14,6 @@ from aep_auth import get_headers
 
 REPO_ROOT     = Path(__file__).parent.parent
 REGISTRY      = REPO_ROOT / "template_registry.json"
-TEMPLATES_DIR = REPO_ROOT / "templates"
 API_BASE      = os.getenv("AEP_API_BASE", "https://platform.adobe.io")
 
 
@@ -52,14 +50,51 @@ def update_aep_template(template_id, name, sql, sandbox=None):
     return resp.json()
 
 
+def get_sandbox_for_file(file_path):
+    """
+    Determines which AEP sandbox to use based on the file's folder path.
+
+    New structure folders (insurance, centerwell, brand_agnostic)
+    → use BETA_FEATURES sandbox
+
+    Old structure (templates/ folder)
+    → use AEP_STAGING_SANDBOX
+
+    When moving to client environment later, just add more
+    folder mappings here with their respective sandbox secrets.
+    """
+    parts = [p.lower() for p in file_path.parts]
+
+    new_structure_folders = ["insurance", "centerwell", "brand_agnostic"]
+    for folder in new_structure_folders:
+        if folder in parts:
+            sandbox = os.getenv("BETA_FEATURES", "")
+            if sandbox:
+                return sandbox
+            print("  WARN  BETA_FEATURES secret not set - skipping")
+            return None
+
+    # fallback for old templates/ folder
+    return os.getenv("AEP_STAGING_SANDBOX", "")
+
+
+def get_all_sql_files():
+    """
+    Gets all .sql files from the entire repo,
+    excluding hidden folders like .github
+    """
+    return sorted(
+        f for f in REPO_ROOT.glob("**/*.sql")
+        if not any(part.startswith(".") for part in f.parts)
+    )
+
+
 def cmd_push(args):
-    sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
     registry  = load_registry()
-    existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-    sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+    sql_files = get_all_sql_files()
 
     if not sql_files:
-        print("No .sql files found under templates/")
+        print("No .sql files found in repo")
         sys.exit(1)
 
     print("")
@@ -74,6 +109,12 @@ def cmd_push(args):
         sql      = sql_file.read_text(encoding="utf-8")
         rel      = str(sql_file.relative_to(REPO_ROOT))
         new_hash = hashlib.md5(sql.strip().encode()).hexdigest()
+        sandbox  = get_sandbox_for_file(sql_file)
+
+        if not sandbox:
+            print("  SKIP  " + name + " (no sandbox configured for: " + rel + ")")
+            skipped += 1
+            continue
 
         reg_entry = registry.get("templates", {}).get(name, {})
         last_hash = reg_entry.get("content_hash", "")
@@ -84,6 +125,8 @@ def cmd_push(args):
             continue
 
         try:
+            existing = {t["name"]: t for t in list_aep_templates(sandbox)}
+
             if name in existing:
                 tid    = existing[name]["id"]
                 update_aep_template(tid, name, sql, sandbox)
@@ -100,7 +143,7 @@ def cmd_push(args):
                 "action":       action,
                 "content_hash": new_hash,
             }
-            print("  OK  " + name + " (" + action + ")")
+            print("  OK  " + name + " (" + action + ") -> " + sandbox)
             pushed += 1
 
         except Exception as e:
@@ -109,31 +152,60 @@ def cmd_push(args):
     save_registry(registry)
     print("")
     print("Done - pushed: " + str(pushed) + ", skipped: " + str(skipped))
-    print("Registry updated: " + str(REGISTRY))
     print("")
 
 
 def cmd_pull(args):
-    sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
-    registry  = load_registry()
-    templates = list_aep_templates(sandbox)
+    """
+    Pulls templates from all configured sandboxes into GitHub.
+    Saves content_hash so push won't re-push unchanged templates.
+    """
+    sandboxes = {}
 
-    print("")
-    print("Pulling " + str(len(templates)) + " template(s) from AEP sandbox: " + str(sandbox))
-    print("")
+    beta = os.getenv("BETA_FEATURES", "")
+    staging = os.getenv("AEP_STAGING_SANDBOX", "")
 
-    for t in templates:
-        name = t.get("name", "unknown")
-        sql  = t.get("sql", "")
-        out  = TEMPLATES_DIR / "shared" / (name + ".sql")
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(sql, encoding="utf-8")
-        registry["templates"][name] = {
-            "id":      t.get("id"),
-            "file":    str(out.relative_to(REPO_ROOT)),
-            "sandbox": sandbox,
-        }
-        print("  OK  " + name)
+    if beta:
+        sandboxes["BETA_FEATURES"] = beta
+    if staging:
+        sandboxes["AEP_STAGING_SANDBOX"] = staging
+
+    if not sandboxes:
+        print("No sandbox secrets configured. Nothing to pull.")
+        sys.exit(1)
+
+    registry = load_registry()
+
+    for secret_name, sandbox in sandboxes.items():
+        templates = list_aep_templates(sandbox)
+
+        print("")
+        print("Pulling " + str(len(templates)) + " template(s) from: " + sandbox)
+        print("")
+
+        for t in templates:
+            name = t.get("name", "unknown")
+            sql  = t.get("sql", "")
+
+            if not sql.strip():
+                print("  SKIP  " + name + " (empty SQL)")
+                continue
+
+            # save pulled templates into shared folder
+            out = REPO_ROOT / "templates" / "shared" / (name + ".sql")
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(sql, encoding="utf-8")
+
+            # save hash so push won't re-push unchanged templates
+            content_hash = hashlib.md5(sql.strip().encode()).hexdigest()
+
+            registry["templates"][name] = {
+                "id":           t.get("id"),
+                "file":         str(out.relative_to(REPO_ROOT)),
+                "sandbox":      sandbox,
+                "content_hash": content_hash,
+            }
+            print("  OK  " + name)
 
     save_registry(registry)
     print("")
@@ -142,25 +214,36 @@ def cmd_pull(args):
 
 
 def cmd_diff(args):
-    sandbox   = os.getenv("AEP_SANDBOX_NAME", "prod")
-    existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
-    sql_files = sorted(TEMPLATES_DIR.glob("**/*.sql"))
+    sandboxes = {}
+
+    beta = os.getenv("BETA_FEATURES", "")
+    staging = os.getenv("AEP_STAGING_SANDBOX", "")
+
+    if beta:
+        sandboxes["BETA_FEATURES"] = beta
+    if staging:
+        sandboxes["AEP_STAGING_SANDBOX"] = staging
+
+    sql_files = get_all_sql_files()
     local     = set(f.stem for f in sql_files)
 
-    only_local = local - set(existing.keys())
-    only_aep   = set(existing.keys()) - local
-    both       = local & set(existing.keys())
+    for secret_name, sandbox in sandboxes.items():
+        existing  = {t["name"]: t for t in list_aep_templates(sandbox)}
 
-    print("")
-    print("Diff - sandbox: " + str(sandbox))
-    print("")
-    for name in sorted(both):
-        print("  MATCH    " + name + "  (in both GitHub and AEP)")
-    for name in sorted(only_local):
-        print("  NEW      " + name + "  (only in GitHub - will be created on push)")
-    for name in sorted(only_aep):
-        print("  MISSING  " + name + "  (only in AEP - not in GitHub)")
-    print("")
+        only_local = local - set(existing.keys())
+        only_aep   = set(existing.keys()) - local
+        both       = local & set(existing.keys())
+
+        print("")
+        print("Diff - sandbox: " + sandbox)
+        print("")
+        for name in sorted(both):
+            print("  MATCH    " + name + "  (in both GitHub and AEP)")
+        for name in sorted(only_local):
+            print("  NEW      " + name + "  (only in GitHub)")
+        for name in sorted(only_aep):
+            print("  MISSING  " + name + "  (only in AEP)")
+        print("")
 
 
 def main():
