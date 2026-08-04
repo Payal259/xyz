@@ -1,11 +1,19 @@
-name: Deploy to AEP Staging
+name: Deploy to AEP Staging (BETA_FEATURES)
 
 on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'insurance/**'
+      - 'centerwell/**'
+      - 'brand_agnostic/**'
+      - 'templates/**'
   workflow_dispatch:
 
 jobs:
   deploy-staging:
-    name: Push Templates to AEP Staging
+    name: Push Templates to BETA_FEATURES
     runs-on: windows-latest
     environment: aep-staging-approval
 
@@ -39,7 +47,7 @@ jobs:
         shell: pwsh
         run: python scripts/validate_sql.py --all
 
-      - name: Push templates to AEP
+      - name: Push templates to BETA_FEATURES sandbox
         shell: pwsh
         env:
           AEP_CLIENT_ID:       ${{ secrets.AEP_CLIENT_ID }}
