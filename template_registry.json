@@ -267,8 +267,8 @@
       "id": "b866afa7-e406-4d36-89c8-d40d06c1c32f",
       "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\Git.sql",
       "sandbox": "aep-training",
-      "action": "created",
-      "content_hash": "4e2611042be7f2fcb9c04b200e9da00a"
+      "action": "updated",
+      "content_hash": "3cf5c86945bfa61266d73bbfb9db1bdb"
     }
   }
 }
