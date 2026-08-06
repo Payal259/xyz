@@ -262,6 +262,13 @@
       "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\Query 1 - View All Profile Records.sql",
       "sandbox": "aep-training",
       "content_hash": "0cb471ffd10492ca40cbbcb9c8e8ed9e"
+    },
+    "Git": {
+      "id": "b866afa7-e406-4d36-89c8-d40d06c1c32f",
+      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\Git.sql",
+      "sandbox": "aep-training",
+      "action": "created",
+      "content_hash": "4e2611042be7f2fcb9c04b200e9da00a"
     }
   }
 }
