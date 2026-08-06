@@ -56,7 +56,7 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add templates/
+          git add insurance/
           git add template_registry.json
           $changes = git status --porcelain
           if ($changes) {
