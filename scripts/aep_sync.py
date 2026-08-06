@@ -117,7 +117,11 @@ def cmd_push(args):
             continue
 
         reg_entry = registry.get("templates", {}).get(name, {})
-        last_hash = reg_entry.get("content_hash", "")
+
+        if reg_entry.get("file") != rel:
+            last_hash = ""
+        else:
+            last_hash = reg_entry.get("content_hash", "")
 
         if last_hash and new_hash == last_hash:
             print("  SKIP  " + name + " (no changes)")
