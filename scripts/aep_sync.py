@@ -216,15 +216,9 @@ def cmd_pull(args):
     print("")
 
 def cmd_diff(args):
-    sandboxes = {}
-
-    beta = os.getenv("BETA_FEATURES", "")
-    staging = os.getenv("AEP_STAGING_SANDBOX", "")
-
-    if beta:
-        sandboxes["BETA_FEATURES"] = beta
-    if staging:
-        sandboxes["AEP_STAGING_SANDBOX"] = staging
+   sandboxes = {
+    "AEP_STAGING_SANDBOX": os.getenv("AEP_STAGING_SANDBOX", "")
+}
 
     sql_files = get_all_sql_files()
     local     = set(f.stem for f in sql_files)
