@@ -192,7 +192,14 @@ def cmd_pull(args):
                 continue
 
             # save pulled templates into shared folder
-            out = REPO_ROOT / "templates" / "shared" / (name + ".sql")
+            out = (
+    REPO_ROOT
+    / "insurance"
+    / "data_distiller"
+    / "ins-dev"
+    / "dd_query_templates"
+    / (name + ".sql")
+)
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(sql, encoding="utf-8")
 
