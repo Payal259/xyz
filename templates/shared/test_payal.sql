@@ -1,2 +1,2 @@
--- placeholder file
+-- Test placeholder file
 SELECT 1;
