@@ -47,7 +47,7 @@ jobs:
           AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
           AEP_API_BASE:        https://platform.adobe.io
           AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
-          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
+          BETA_FEATURES:       ${{ secrets.AEP_STAGING_SANDBOX }}
           PULL_TARGET:         ${{ github.event.inputs.sandbox_target }}
         run: python scripts/aep_sync.py pull
 
@@ -56,7 +56,7 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add templates/
+          git add insurance/
           git add template_registry.json
           $changes = git status --porcelain
           if ($changes) {

@@ -164,6 +164,9 @@ def cmd_pull(args):
 
     beta = os.getenv("BETA_FEATURES", "")
     staging = os.getenv("AEP_STAGING_SANDBOX", "")
+    
+    print("BETA_FEATURES =", beta)
+    print("AEP_STAGING_SANDBOX =", staging)
 
     if beta:
         sandboxes["BETA_FEATURES"] = beta
@@ -192,7 +195,7 @@ def cmd_pull(args):
                 continue
 
             # save pulled templates into shared folder
-            out = REPO_ROOT / "templates" / "shared" / (name + ".sql")
+            out = (REPO_ROOT/"insurance"/"data_distiller"/"ins-dev"/"dd_query_templates"/(name + ".sql"))
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(sql, encoding="utf-8")
 
@@ -213,15 +216,7 @@ def cmd_pull(args):
     print("")
 
 def cmd_diff(args):
-    sandboxes = {}
-
-    beta = os.getenv("BETA_FEATURES", "")
-    staging = os.getenv("AEP_STAGING_SANDBOX", "")
-
-    if beta:
-        sandboxes["BETA_FEATURES"] = beta
-    if staging:
-        sandboxes["AEP_STAGING_SANDBOX"] = staging
+    sandboxes = {"AEP_STAGING_SANDBOX": os.getenv("AEP_STAGING_SANDBOX", "")}
 
     sql_files = get_all_sql_files()
     local     = set(f.stem for f in sql_files)
