@@ -2,20 +2,23 @@
   "templates": {
     "new_user_registration": {
       "id": "ed0eaf62-0cfc-4b32-a937-17819e3202c0",
-      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\new_user_registration.sql",
+      "file": "templates\\acquisition\\new_user_registration.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "3b2c189d354e1b43b65c8106165eb532"
     },
     "daily_active_users": {
       "id": "01c3c892-5030-4e4d-b876-62a0dddfb8b0",
-      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\daily_active_users.sql",
+      "file": "templates\\analytics\\daily_active_users.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "e4259e66ab75c4ef17371148c23ba098"
     },
     "churn_analysis": {
       "id": "e2e71a65-fea6-40b6-b9db-b4f87fd4eaf0",
-      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\churn_analysis.sql",
+      "file": "templates\\retention\\churn_analysis.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "18c87e49c2fa6418476bdee1dadc69b3"
     },
     "identity_resolution_cte": {
@@ -26,8 +29,9 @@
     },
     "test_template_check": {
       "id": "1737564a-38f1-4f04-a8fd-0fc0836e9bc6",
-      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\test_template_check.sql",
+      "file": "templates\\analytics\\test_template_check.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "bbc6e293ebb199df1260ac8f8c0e1af6"
     },
     "VYNX": {
@@ -224,8 +228,9 @@
     },
     "placeholder": {
       "id": "b10a9a07-edea-4780-806b-9083ef5efd42",
-      "file": "insurance\\data_distiller\\ins-dev\\dd_query_templates\\placeholder.sql",
+      "file": "insurance\\data_distiller\\ins-dev\\io_templates\\placeholder.sql",
       "sandbox": "aep-training",
+      "action": "updated",
       "content_hash": "7b8b354ed4343a51099f8bacff6014c2"
     },
     "Query 5 - Gold Members Only": {
