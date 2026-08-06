@@ -1,5 +1,4 @@
-name: Deploy to AEP Staging (BETA_FEATURES)
-
+name: Deploy to AEP Staging 
 on:
   push:
     branches:
@@ -61,7 +60,7 @@ jobs:
           AEP_ORG_ID:          ${{ secrets.AEP_ORG_ID }}
           AEP_API_BASE:        https://platform.adobe.io
           AEP_STAGING_SANDBOX: ${{ secrets.AEP_STAGING_SANDBOX }}
-          BETA_FEATURES:       ${{ secrets.BETA_FEATURES }}
+          BETA_FEATURES:       ${{ secrets.AEP_STAGING_SANDBOX }}
         run: python scripts/aep_sync.py push
 
       - name: Verify sync
