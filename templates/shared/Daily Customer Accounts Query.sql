@@ -1,1 +1,0 @@
-SELECT firstName, lastName, emailAddress, accountNumber FROM customer_profile_dataset WHERE accountNumber LIKE 'ACC%';
