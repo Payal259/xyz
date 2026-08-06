@@ -8,9 +8,8 @@
     },
     "daily_active_users": {
       "id": "01c3c892-5030-4e4d-b876-62a0dddfb8b0",
-      "file": "templates\\analytics\\daily_active_users.sql",
+      "file": "templates\\shared\\daily_active_users.sql",
       "sandbox": "aep-training",
-      "action": "updated",
       "content_hash": "e4259e66ab75c4ef17371148c23ba098"
     },
     "churn_analysis": {
@@ -27,9 +26,8 @@
     },
     "test_template_check": {
       "id": "1737564a-38f1-4f04-a8fd-0fc0836e9bc6",
-      "file": "templates\\analytics\\test_template_check.sql",
+      "file": "templates\\shared\\test_template_check.sql",
       "sandbox": "aep-training",
-      "action": "updated",
       "content_hash": "bbc6e293ebb199df1260ac8f8c0e1af6"
     },
     "VYNX": {
