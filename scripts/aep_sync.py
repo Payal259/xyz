@@ -164,8 +164,9 @@ def cmd_pull(args):
 
     beta = os.getenv("BETA_FEATURES", "")
     staging = os.getenv("AEP_STAGING_SANDBOX", "")
+    
     print("BETA_FEATURES =", beta)
-print("AEP_STAGING_SANDBOX =", staging)
+    print("AEP_STAGING_SANDBOX =", staging)
 
     if beta:
         sandboxes["BETA_FEATURES"] = beta
